@@ -22,22 +22,25 @@ class HumanPlayer : public Player<NineMensMorris>
 		{
 			//std::cout << (int)game.board.state << std::endl;
 			int move1, move2;
-			switch (game.board.state)
+			switch (game.state)
 			{
 			case NineMensMorris::State::Placing:
 				std::cout << "\nPLACE ";
 				std::cin >> move1;
+				game.getPlaceBoards(game, 1);
 				game.place(move_dec[move1], id);
 				break;
 			case NineMensMorris::State::Mill:
 				std::cout << "\nREMOVE ";
 				std::cin >> move1;
+				game.getMillBoards(game, 1);
 				game.mill(move_dec[move1], id);
 				break;
 			case NineMensMorris::State::Moving:
 				std::cout << "\nMOVE ";
 				std::cin >> move1;
 				std::cin >> move2;
+				game.getMoveBoards(game, 1);
 				game.move(move_dec[move1], move_dec[move2], id);
 				break;
 			default:
