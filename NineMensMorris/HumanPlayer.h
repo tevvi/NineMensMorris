@@ -32,7 +32,7 @@ class HumanPlayer : public Player<NineMensMorris>
 		case NineMensMorris::State::Moving:
 			std::cin >> move1;
 			std::cin >> move2;
-			game.move(move_dec[move1], move_dec[move2], id);
+			game.move(move_dec[move1], move_dec[move2]);
 			break;
 		default:
 			break;

@@ -7,7 +7,6 @@ using GameState = typename Game::State;
 void play(Game&  game, std::vector<Player<Game>* > players, std::vector<NineMensMorris::ConsoleColor> colors)
 {
 	auto players_id = game.setup(2);
-	game.print(std::cout);
 	while (!game.end())
 	{
 		game.nextPlayer();

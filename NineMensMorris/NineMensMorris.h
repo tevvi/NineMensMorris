@@ -85,9 +85,9 @@ public:
 
 	bool mill(ActionType point);
 
-	inline void set(ActionType point)
+	inline void set(ActionType point, PlayerId player)
 	{
-		board[point.first][point.second] = current_player;
+		board[point.first][point.second] = player;
 	}
 
 	inline int get(ActionType point)
@@ -127,11 +127,11 @@ public:
 	
 	std::string to_s(State s);
 
-	std::vector<NineMensMorris> getMillBoards(NineMensMorris board);
+	std::vector<NineMensMorris> getMillBoards();
 	
-	std::vector<NineMensMorris> getPlaceBoards(NineMensMorris board);
+	std::vector<NineMensMorris> getPlaceBoards();
 	
-	std::vector<NineMensMorris> getMoveBoards(NineMensMorris board);
+	std::vector<NineMensMorris> getMoveBoards();
 	
 	std::string format(ActionType point, int &cell);
 

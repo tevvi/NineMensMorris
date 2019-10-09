@@ -9,13 +9,14 @@ void NineMensMorris::SetColor(ConsoleColor text, ConsoleColor background)
 std::map<int, std::set<int>> NineMensMorris::transitions;
 std::map<int, std::vector<NineMensMorris::Mill>> NineMensMorris::mills;
 std::map<int, NineMensMorris::ConsoleColor> NineMensMorris::playerColors;
-int NineMensMorris::players_count;
 
 NineMensMorris::PlayerId NineMensMorris::nextPlayer() {
 	if(state == State::NextPlayer)
 	{
 		state = commonState;
-		current_player = (current_player + 1) % players_count + 1;
+		current_player++;
+		if (current_player == players_count + 1)
+			current_player = 1;
 	}
 	return current_player;
 }
@@ -31,18 +32,18 @@ bool NineMensMorris::place(ActionType point){
 		commonState = State::Moving;
 	}
 	state = State::NextPlayer;
-	calc_mills(point, current_player);
+	calc_mills(point);
 	return true;
 }
 
 bool NineMensMorris::move(ActionType from, ActionType to){
-	if (!can_make_move(from, to, current_player)) {
+	if (!can_make_move(from, to)) {
 		return false;
 	}
 	set(from, 0);
 	set(to, current_player);
 	state = State::NextPlayer;
-	calc_mills(to, current_player);
+	calc_mills(to);
 	return true;
 }
 
@@ -88,9 +89,9 @@ std::vector<NineMensMorris> NineMensMorris::getMillBoards(){
 	{
 		for (size_t j = 0; j < N; j++)
 		{
-			if (!board.belongs({ i, j }, current_player) && !board.belongs({ i, j }, 0) && !board.belongs({ i, j }, -1))
+			if (!belongs({ i, j }, current_player) && !belongs({ i, j }, 0) && !belongs({ i, j }, -1))
 			{
-				NineMensMorris game = this;
+				NineMensMorris game = *this;
 				game.mill({ i, j });
 				game.prevState = State::Mill;
 				game.prev_to = { i ,j };
@@ -107,9 +108,9 @@ std::vector<NineMensMorris> NineMensMorris::getPlaceBoards(){
 	{
 		for (int j = 0; j < N; j++)
 		{
-			if (board.belongs({ i, j }, 0))
+			if (belongs({ i, j }, 0))
 			{
-				NineMensMorris game = this;
+				NineMensMorris game = *this;
 				game.place({ i, j });
 				game.prevState = State::Placing;
 				game.prev_to = { i, j };
@@ -126,12 +127,12 @@ std::vector<NineMensMorris> NineMensMorris::getMoveBoards(){
 	{
 		for (int j = 0; j < N; j++)
 		{
-			if (board.belongs({ i, j }, current_player))
+			if (belongs({ i, j }, current_player))
 			{
 				for (auto trans : transitions[to_id({ i, j })]) {
 					ActionType trans_act = to_action(trans);
-					if (board.belongs(trans_act, 0)) {
-						NineMensMorris game = board;
+					if (belongs(trans_act, 0)) {
+						NineMensMorris game = *this;
 						game.move({ i, j }, trans_act);
 						game.prevState = State::Moving;
 						game.prev_from = { i, j };
@@ -190,13 +191,13 @@ void NineMensMorris::print(std::ostream& out, std::vector<NineMensMorris::Consol
 {
 	int cell = 0;
 	auto console_color = ConsoleColor::White;
-	SetColor(colors[current_player]);
-	
+
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			if(!belongs(point, 0) && !belongs(point, -1))
+			ActionType point = { i, j };
+			if (!belongs(point, 0) && !belongs(point, -1))
 				SetColor(colors[get(point) - 1]);
 			out << format({ i, j }, cell) << " ";
 			if(!belongs(point, 0) && !belongs(point, -1))
@@ -204,8 +205,11 @@ void NineMensMorris::print(std::ostream& out, std::vector<NineMensMorris::Consol
 		}
 		out << std::endl;
 		
-		out << "Player " << current_player << " " << to_s(state) << std::endl;
+		
 	}
+	SetColor(colors[current_player - 1]);
+	out << "Player " << current_player << " " << to_s(state) << std::endl;
+	SetColor(console_color);
 }
 
 std::vector<NineMensMorris::PlayerId> NineMensMorris::setup(int players_count)
@@ -218,7 +222,7 @@ std::vector<NineMensMorris::PlayerId> NineMensMorris::setup(int players_count)
 	state = State::Placing;
 	commonState = State::Placing;
 	
-	std::vector<PlayerId> players_id;
+	std::vector<PlayerId> players_id(players_count);
 	
 	for (int i = 0; i < players_count; i++)
 	{
