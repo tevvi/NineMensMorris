@@ -22,6 +22,9 @@ class NineMensMorris
 public:
 	using ActionType = std::pair<int, int>;
 	using PlayerId = int;
+	using Matrix = std::vector<std::vector<int>>;
+	using PlayerId = int;
+	
 	enum class State
 	{
 		Lose = 0,
@@ -32,7 +35,6 @@ public:
 		Mill,
 		NextPlayer
 	};
-
 	enum class ConsoleColor : int
 	{
 		Black = 0,
@@ -52,26 +54,11 @@ public:
 		Yellow = 14,
 		White = 15
 	} index;
-
-	using Matrix = std::vector<std::vector<int>>;
-	using PlayerId = int;
-
-	Matrix board;
-
-	int millsCount;
-	int placedCount;
-
-	std::map<PlayerId, int> mens;
-	
-	State state, commonState, prevState;
-		
-	ActionType prev_from, prev_to;
-	
 	struct Mill
 	{
 		int first, second, third;
 	};
-
+	
 	const static int MENS = 9;
 	const static int N = 7;
 	const static int UNAVILABLE = -1;
@@ -80,21 +67,27 @@ public:
 	static std::map<int, std::set<int>> transitions;
 	static std::map<int, std::vector<Mill>> mills;
 	static std::map<int, ConsoleColor> playerColors;
-	static int players_count;
-
-	bool require_action();
 	
-	void nextPlayer(PlayerId player);
+	int players_count;
+	int current_player;
+	int millsCount;
+	int placedCount;
+	std::map<PlayerId, int> mens;
+	State state, commonState, prevState;
+	ActionType prev_from, prev_to;
+	Matrix board;
+	
+	PlayerId nextPlayer();
 
-	bool place(ActionType point, PlayerId player);
+	bool place(ActionType point);
 
-	bool move(ActionType from, ActionType to, PlayerId player);
+	bool move(ActionType from, ActionType to);
 
-	bool mill(ActionType point, PlayerId player);
+	bool mill(ActionType point);
 
-	inline void set(ActionType point, PlayerId player)
+	inline void set(ActionType point)
 	{
-		board[point.first][point.second] = player;
+		board[point.first][point.second] = current_player;
 	}
 
 	inline int get(ActionType point)
@@ -104,12 +97,12 @@ public:
 
 	bool has_trans(ActionType from, ActionType to);
 
-	inline bool can_make_move(ActionType from, ActionType to, PlayerId player)
+	inline bool can_make_move(ActionType from, ActionType to)
 	{
-		return belongs(from, player) && belongs(to, 0) && (mens[player] < 4 || has_trans(from, to));
+		return belongs(from, current_player) && belongs(to, 0) && (mens[current_player] < 4 || has_trans(from, to));
 	}
 
-	void calc_mills(ActionType point, PlayerId player);
+	void calc_mills(ActionType point);
 
 	inline bool belongs(ActionType point, PlayerId player) {
 		return get(point) == player;
@@ -131,20 +124,20 @@ public:
 	{
 		return action.first * N + action.second;
 	}
-
-	//getMillActions getPlaceActions getMoveActions
-
-	std::vector<NineMensMorris> getMillBoards(NineMensMorris board, PlayerId player);
 	
-	std::vector<NineMensMorris> getPlaceBoards(NineMensMorris board, PlayerId player);
+	std::string to_s(State s);
+
+	std::vector<NineMensMorris> getMillBoards(NineMensMorris board);
 	
-	std::vector<NineMensMorris> getMoveBoards(NineMensMorris board, PlayerId player);
+	std::vector<NineMensMorris> getPlaceBoards(NineMensMorris board);
+	
+	std::vector<NineMensMorris> getMoveBoards(NineMensMorris board);
 	
 	std::string format(ActionType point, int &cell);
 
-	void print(std::ostream& out);
+	void print(std::ostream& out, std::vector<NineMensMorris::ConsoleColor> colors);
 
-	void setup(int players_count);
+	std::vector<int> setup(int players_count);
 
 	void SetColor(ConsoleColor text, ConsoleColor background = ConsoleColor::Black);
 

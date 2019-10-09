@@ -11,52 +11,47 @@ std::map<int, std::vector<NineMensMorris::Mill>> NineMensMorris::mills;
 std::map<int, NineMensMorris::ConsoleColor> NineMensMorris::playerColors;
 int NineMensMorris::players_count;
 
-bool NineMensMorris::require_action()
-{
-	return state == State::Mill ||
-		state == State::Moving ||
-		state == State::Placing;
+NineMensMorris::PlayerId NineMensMorris::nextPlayer() {
+	if(state == State::NextPlayer)
+	{
+		state = commonState;
+		current_player = (current_player + 1) % players_count + 1;
+	}
+	return current_player;
 }
 
-void NineMensMorris::nextPlayer(PlayerId player) {
-	state = commonState;
-}
-
-bool NineMensMorris::place(ActionType point, PlayerId player)
-{
+bool NineMensMorris::place(ActionType point){
 	if (!belongs(point, 0)) {
 		return false;
 	}
-	set(point, player);
-	mens[player]++;
+	set(point, current_player);
+	mens[current_player]++;
 	placedCount++;
 	if (placedCount == players_count * MENS) {
 		commonState = State::Moving;
 	}
 	state = State::NextPlayer;
-	calc_mills(point, player);
+	calc_mills(point, current_player);
 	return true;
 }
 
-bool NineMensMorris::move(ActionType from, ActionType to, PlayerId player)
-{
-	if (!can_make_move(from, to, player)) {
+bool NineMensMorris::move(ActionType from, ActionType to){
+	if (!can_make_move(from, to, current_player)) {
 		return false;
 	}
 	set(from, 0);
-	set(to, player);
+	set(to, current_player);
 	state = State::NextPlayer;
-	calc_mills(to, player);
+	calc_mills(to, current_player);
 	return true;
 }
 
-bool NineMensMorris::mill(ActionType point, PlayerId player)
-{
-	if (belongs(point, player) || belongs(point, 0) || belongs(point, -1))
+bool NineMensMorris::mill(ActionType point){
+	if (belongs(point, current_player) || belongs(point, 0) || belongs(point, -1))
 	{
 		return false;
 	}
-	mens[board[point.first][point.second]]--;
+	mens[get(point)]--;
 	millsCount--;
 	if (millsCount == 0)
 		state = State::NextPlayer;
@@ -73,12 +68,11 @@ bool NineMensMorris::has_trans(ActionType from, ActionType to)
 	return set.find(to_id(to)) != set.end();
 }
 
-void NineMensMorris::calc_mills(ActionType point, PlayerId player)
-{
+void NineMensMorris::calc_mills(ActionType point){
 	for (auto mill : mills[to_id(point)]) {
-		if (belongs(to_action(mill.first), player) &&
-			belongs(to_action(mill.second), player) &&
-			belongs(to_action(mill.third), player))
+		if (belongs(to_action(mill.first), current_player) &&
+			belongs(to_action(mill.second), current_player) &&
+			belongs(to_action(mill.third), current_player))
 		{
 			millsCount++;
 		}
@@ -88,29 +82,26 @@ void NineMensMorris::calc_mills(ActionType point, PlayerId player)
 	}
 }
 
-std::vector<NineMensMorris> NineMensMorris::getMillBoards(NineMensMorris board, PlayerId player)
-{
+std::vector<NineMensMorris> NineMensMorris::getMillBoards(){
 	std::vector<NineMensMorris> res = {};
 	for (size_t i = 0; i < N; i++)
 	{
 		for (size_t j = 0; j < N; j++)
 		{
-			if (!board.belongs({ i, j }, player) && !board.belongs({ i, j }, 0) && !board.belongs({ i, j }, -1))
+			if (!board.belongs({ i, j }, current_player) && !board.belongs({ i, j }, 0) && !board.belongs({ i, j }, -1))
 			{
-				NineMensMorris game = board;
-				game.mill({ i, j }, player);
+				NineMensMorris game = this;
+				game.mill({ i, j });
 				game.prevState = State::Mill;
 				game.prev_to = { i ,j };
 				res.push_back(game);
 			}
 		}
 	}
-
 	return res;
 }
 
-std::vector<NineMensMorris> NineMensMorris::getPlaceBoards(NineMensMorris board, PlayerId player)
-{
+std::vector<NineMensMorris> NineMensMorris::getPlaceBoards(){
 	std::vector<NineMensMorris> res = {};
 	for (int i = 0; i < N; i++)
 	{
@@ -118,8 +109,8 @@ std::vector<NineMensMorris> NineMensMorris::getPlaceBoards(NineMensMorris board,
 		{
 			if (board.belongs({ i, j }, 0))
 			{
-				NineMensMorris game = board;
-				game.place({ i, j }, player);
+				NineMensMorris game = this;
+				game.place({ i, j });
 				game.prevState = State::Placing;
 				game.prev_to = { i, j };
 				res.push_back(game);
@@ -129,20 +120,19 @@ std::vector<NineMensMorris> NineMensMorris::getPlaceBoards(NineMensMorris board,
 	return res;
 }
 
-std::vector<NineMensMorris> NineMensMorris::getMoveBoards(NineMensMorris board, PlayerId player)
-{
+std::vector<NineMensMorris> NineMensMorris::getMoveBoards(){
 	std::vector<NineMensMorris> res = {};
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			if (board.belongs({ i, j }, player))
+			if (board.belongs({ i, j }, current_player))
 			{
 				for (auto trans : transitions[to_id({ i, j })]) {
 					ActionType trans_act = to_action(trans);
 					if (board.belongs(trans_act, 0)) {
 						NineMensMorris game = board;
-						game.move({ i, j }, trans_act, player);
+						game.move({ i, j }, trans_act);
 						game.prevState = State::Moving;
 						game.prev_from = { i, j };
 						game.prev_to = trans_act;
@@ -165,44 +155,76 @@ std::vector<NineMensMorris> NineMensMorris::getMoveBoards(NineMensMorris board, 
 	return std::to_string(get(point));
 }*/
 
+std::string NineMensMorris::to_s(NineMensMorris::State s) {
+	switch(s)
+	{
+		case State::Lose:
+			return "Lose";
+		case State::Win :
+			return "Win";
+		case State::Draw :
+			return "Draw";
+		case State::Placing :
+			return "Placing";
+		case State::Moving :
+			return "Moving";
+		case State::Mill :
+			return "Mill";
+		case State::NextPlayer :
+			return "Next Player";
+	}
+}
+
 std::string NineMensMorris::format(ActionType point, int& cell)
 {
-	if (get(point) == -1) 
+	if (belongs(point, -1)) 
 	{
 		return "  ";
-	}
-	else if (get(point) != 0)
-	{
-		SetColor(playerColors[get(point)]);
 	}
 	std::string res = cell / 10 == 0 ? std::to_string(cell) + " " : std::to_string(cell);
 	cell++;
 	return res;
 }
 
-void NineMensMorris::print(std::ostream& out)
+void NineMensMorris::print(std::ostream& out, std::vector<NineMensMorris::ConsoleColor> colors)
 {
 	int cell = 0;
+	auto console_color = ConsoleColor::White;
+	SetColor(colors[current_player]);
+	
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			SetColor(ConsoleColor::White);
+			if(!belongs(point, 0) && !belongs(point, -1))
+				SetColor(colors[get(point) - 1]);
 			out << format({ i, j }, cell) << " ";
+			if(!belongs(point, 0) && !belongs(point, -1))
+				SetColor(console_color);
 		}
 		out << std::endl;
+		
+		out << "Player " << current_player << " " << to_s(state) << std::endl;
 	}
-	SetColor(ConsoleColor::White);
 }
 
-void NineMensMorris::setup(int players_count)
+std::vector<NineMensMorris::PlayerId> NineMensMorris::setup(int players_count)
 {
-	state = State::Placing;
+	
 	this->players_count = players_count;
+	current_player = 1;
+	
 	mens = std::map<PlayerId, int>();
+	state = State::Placing;
+	commonState = State::Placing;
+	
+	std::vector<PlayerId> players_id;
+	
 	for (int i = 0; i < players_count; i++)
 	{
+		players_id[i] = i+1;
 		mens[i + 1] = 0;
+		
 	}
 
 	board = {
@@ -278,7 +300,8 @@ void NineMensMorris::setup(int players_count)
 	for (int i = 0; i < players_count; i++) {
 		playerColors[i + 1] = (ConsoleColor)(i + 3);
 	}
-	commonState = State::Placing;
+	
+	return players_id;
 }
 
 

@@ -6,34 +6,24 @@ using GameState = typename Game::State;
 
 void play(Game&  game, std::vector<Player<Game>* > players)
 {
-	game.setup(2);
+	auto players_id = game.setup(2);
 	game.print(std::cout);
 	while (!game.end())
 	{
-		for (int i = 0; i < players.size(); i++)
-		{
-			game.nextPlayer(players[i]->id);
-			players[i]->make_actions(game);
-			game.print(std::cout);
-			std::cout << std::endl << std::endl;
-			if (game.end())
-			{
-				if (game.state == NineMensMorris::State::Win) {
-					std::cout << "Player " << i << " won!\n";
-				}
-				break;
-			}
-		}
+		game.nextPlayer();
+		game.print(std::cout);
+		players[game.current_player - 1]->make_actions(game);
+		std::cout << std::endl << std::endl;
 	}
+	std::cout << "Player " << game.current_player << " " << game.to_s(game.state) << " !\n";
+	system("PAUSE");
 }
 
 int main()
 {
 	NineMensMorris game;
 	HumanPlayer p1, p2;
-	p1.id = 1;
-	p2.id = 2;
 
 	play(game, {&p1, &p2 });
-	system("PAUSE");
+	
 }
