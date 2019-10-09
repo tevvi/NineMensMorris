@@ -3,6 +3,7 @@
 
 using Game = NineMensMorris;
 using GameState = typename Game::State;
+
 void play(Game&  game, std::vector<Player<Game>* > players)
 {
 	game.setup(2);
@@ -11,11 +12,12 @@ void play(Game&  game, std::vector<Player<Game>* > players)
 	{
 		for (int i = 0; i < players.size(); i++)
 		{
+			game.nextPlayer(players[i]->id);
 			players[i]->make_actions(game);
 			game.print(std::cout);
+			std::cout << std::endl << std::endl;
 			if (game.end())
 			{
-				//print results
 				break;
 			}
 		}

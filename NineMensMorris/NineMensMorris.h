@@ -1,6 +1,7 @@
 #pragma once
 #include <map>
 #include <set>
+#include <vector>
 #include <string>
 
 #include "GameHandler.h"
@@ -16,15 +17,11 @@ namespace base
 	};
 }
 
-
-class NineMensMorris : public GameHandler<std::vector<std::vector<int>>, std::pair<int, int>>
+class NineMensMorris
 {
 public:
-	using GameHandlerType = GameHandler<std::vector<std::vector<int>>, std::pair<int, int>>;
-	using typename GameHandlerType::ActionType;
-	using typename GameHandlerType::BoardType;
-	using ValueType = typename BoardType::value_type;
-	using typename GameHandlerType::PlayerId;
+	using ActionType = std::pair<int, int>;
+	using PlayerId = int;
 	enum class State
 	{
 		Lose = 0,
@@ -36,77 +33,199 @@ public:
 		NextPlayer
 	};
 
-	const int MENS = 9;
-	const int N = 7;
-	const int UNAVILABLE = -1;
-	const int AVILABLE = 0;
+	struct Board
+	{
+		using Matrix = std::vector<std::vector<int>>;
+		using ActionType = std::pair<int, int>;
+		using PlayerId = int;
+		Matrix board;
+		int millsCount;
+		int placedCount;
+		std::map<PlayerId, int> mens;
+
+		State state, commonState;
+		
+		ActionType prev_from, prev_to;
+	};
+	using BoardType = Board;
+	
+	struct Mill
+	{
+		int first, second, third;
+	};
+
+	const static int MENS = 9;
+	const static int N = 7;
+	const static int UNAVILABLE = -1;
+	const static int AVILABLE = 0;
+
 	std::map<int, std::set<int>> transitions;
-	std::vector<int> players_id;
+	std::map<int, std::vector<Mill>> mills;
+	int players_count;
+	BoardType board;
 
-	State state;
-
-	virtual std::vector<ActionType> actions(PlayerId player) override
+	bool require_action()
 	{
-		switch (state)
-		{
-		case State::Placing:
-			break;
-		case State::Moving:
-			break;
-		case State::Mill:
-			break;
-		default:
-			break;
+		return board.state == State::Mill ||
+			board.state == State::Moving ||
+			board.state == State::Placing;
+	}
+	
+	void nextPlayer(PlayerId player) {
+		board.state = board.commonState;
+	}
+
+	bool place(ActionType point, PlayerId player)
+	{
+		if (!belongs(point, 0)) {
+			return false;
 		}
-		throw base::NotImplementedException();
-	}
-	void place(ActionType point, PlayerId player)
-	{
-		board[point.first][point.second] = player;
+		set(point, player);
+		board.mens[player]++;
+		board.placedCount++;
+		if (board.placedCount == players_count * MENS) {
+			board.commonState = State::Moving;
+		}
+		board.state = State::NextPlayer;
+		calc_mills(point, player);
+		return true;
 	}
 
-
-	virtual std::vector<BoardType> boards(BoardType board, PlayerId player) override
+	bool move(ActionType from, ActionType to, PlayerId player)
 	{
-		throw base::NotImplementedException(); 
+		if (!can_make_move(from, to, player)) {
+			return false;
+		}
+		set(from, 0);
+		set(to, player);
+		board.state = State::NextPlayer;
+		calc_mills(to, player);
+		return true;
 	}
-	virtual void print(std::ostream& out) override
+
+	bool mill(ActionType point, PlayerId player)
 	{
-		for (int i = 0; i < N; i++)
+		if (belongs(point, player) || belongs(point, 0) || belongs(point, -1))
 		{
-			for (int j = 0; j < N; j++)
+			return false;
+		}
+		board.mens[board.board[point.first][point.second]]--;
+		set(point, 0);
+		board.millsCount--;
+		if (board.millsCount == 0)
+			board.state = State::NextPlayer;
+		if (board.mens[get(point)] == 2 && board.commonState != State::Placing) {
+			board.state = State::Win;
+		}
+		return true;
+	}
+
+	void set(ActionType point, PlayerId player)
+	{
+		board.board[point.first][point.second] = player;
+	}
+
+	int get(ActionType point)
+	{
+		return board.board[point.first][point.second];
+	}
+
+	bool has_trans(ActionType from, ActionType to)
+	{
+		auto& set = transitions[to_id(from)];
+		return set.find(to_id(to)) != set.end();
+	}
+
+	bool can_make_move(ActionType from, ActionType to, PlayerId player)
+	{
+		return belongs(from, player) && belongs(to, 0) && (board.mens[player] < 4 || has_trans(from, to));
+	}
+
+	void calc_mills(ActionType point, PlayerId player)
+	{
+		for (auto mill : mills[to_id(point)]) {
+			if (belongs(to_action(mill.first), player) &&
+				belongs(to_action(mill.second), player) &&
+				belongs(to_action(mill.third), player))
 			{
-				out << std::to_string(board[i][j])  << "  ";
+				board.millsCount++;
 			}
-			out << std::endl;
 		}
-		//throw base::NotImplementedException();
+		if (board.millsCount > 0) {
+			board.state = State::Mill;
+		}
 	}
 
-	virtual bool end() override
+	bool belongs(ActionType point, PlayerId player) {
+		return get(point) == player;
+	}
+
+	bool end()
 	{
-		return state == State::Draw ||
-			state == State::Lose ||
-			state == State::Win;
+		return board.state == State::Draw ||
+			board.state == State::Lose ||
+			board.state == State::Win;
 	}
 
 	ActionType to_action(int id)
 	{
 		return { id / N, id % N };
 	}
+
 	int to_id(ActionType action)
 	{
 		return action.first * N + action.second;
 	}
 
+	//getMillActions getPlaceActions getMoveActions
+
+	std::vector<BoardType> getMillBoards(BoardType board, PlayerId player)
+	{
+
+	}
+	
+	std::vector<BoardType> getPlaceBoards(BoardType board, PlayerId player)
+	{
+
+	}
+	
+	std::vector<BoardType> getMoveBoards(BoardType board, PlayerId player)
+	{
+
+	}
+	
+	std::string format(ActionType point)
+	{
+		if (belongs(point, -1))
+			return " ";
+		if (belongs(point, 0))
+			return "0";
+		return std::to_string(get(point));
+	}
+
+	void print(std::ostream& out)
+	{
+		for (int i = 0; i < N; i++)
+		{
+			for (int j = 0; j < N; j++)
+			{
+				out << format({i, j}) << " ";
+			}
+			out << std::endl;
+		}
+	}
+
 	void setup(int players_count)
 	{
-		state = State::Placing;
-		players_id = std::vector<int>(players_count);
+		board.state = State::Placing;
+		this->players_count = players_count;
+		board.mens = std::map<PlayerId, int>();
 		for (int i = 0; i < players_count; i++)
-			players_id[i] = i + 1;
+		{
+			board.mens[i + 1] = 0;
+		}
 
-		board = {
+		board.board = {
 			{  0, -1, -1,  0, -1, -1,  0 },
 			{ -1,  0, -1,  0, -1,  0, -1 },
 			{ -1, -1,  0,  0,  0, -1, -1 },
@@ -124,6 +243,31 @@ public:
 		--36--38--40--
 		42----45----48
 		*/
+		mills[0] = { {0, 3, 6}, {0, 21, 42} };
+		mills[3] = { {3, 10, 17}, {0, 3, 6} };
+		mills[6] = { {0, 3, 6}, {6, 27, 48} };
+		mills[8] = { {8, 10, 12}, {8, 22, 36} };
+		mills[10] = { {3, 10, 17}, {8, 10, 12} };
+		mills[12] = { {8, 10, 12}, {12, 26, 40} };
+		mills[16] = { {16, 17, 18}, {16, 23, 30} };
+		mills[17] = { {16, 17, 18}, {3, 10, 17} };
+		mills[18] = { {16, 17, 18}, {18, 25, 32} };
+		mills[21] = { {21, 22, 23}, {0, 21, 42} };
+		mills[22] = { {21, 22, 23}, {8, 22, 36} };
+		mills[23] = { {21, 22, 23}, {16, 23, 30} };
+		mills[25] = { {25, 26, 27}, {18, 25, 32} };
+		mills[26] = { {25, 26, 27}, {12, 26, 40} };
+		mills[27] = { {25, 26, 27}, {6, 27, 48} };
+		mills[30] = { {30, 31, 32}, {16, 23, 30} };
+		mills[31] = { {30, 31, 32}, {31, 38, 45} };
+		mills[32] = { {30, 31, 32}, {18, 25, 32} };
+		mills[36] = { {36, 38, 40}, {8, 22, 36} };
+		mills[38] = { {36, 38, 40}, {31, 38, 45} };
+		mills[40] = { {36, 38, 40}, {12, 26, 40} };
+		mills[42] = { {42, 45, 48}, {0, 21, 42} };
+		mills[45] = { {42, 45, 48}, {31, 38, 45} };
+		mills[48] = { {42, 45, 48}, {6, 27, 48} };
+
 		transitions[0] = { 21, 3 };
 		transitions[3] = { 0, 6, 10 };
 		transitions[6] = { 3, 27 };
@@ -148,6 +292,9 @@ public:
 		transitions[42] = { 21, 45 };
 		transitions[45] = { 42, 38, 48 };
 		transitions[48] = { 45, 27 };
+		board.placedCount = 0;
+		board.millsCount = 0;
+		board.commonState = State::Placing;
 	}
 
 	NineMensMorris() {
