@@ -1,7 +1,14 @@
 #include "NineMensMorris.h"
 
+void NineMensMorris::SetColor(ConsoleColor text, ConsoleColor background)
+{
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
+		(WORD)((static_cast<int>(background) << 4) | static_cast<int>(text)));
+}
+
 std::map<int, std::set<int>> NineMensMorris::transitions;
 std::map<int, std::vector<NineMensMorris::Mill>> NineMensMorris::mills;
+std::map<int, NineMensMorris::ConsoleColor> NineMensMorris::playerColors;
 int NineMensMorris::players_count;
 
 bool NineMensMorris::require_action()
@@ -148,25 +155,44 @@ std::vector<NineMensMorris> NineMensMorris::getMoveBoards(NineMensMorris board, 
 	return res;
 }
 
-std::string NineMensMorris::format(ActionType point)
+/*std::string NineMensMorris::format(ActionType point)
 {
 	if (belongs(point, -1))
 		return " ";
 	if (belongs(point, 0))
 		return "0";
+	SetColor(playerColors[get(point)]);
 	return std::to_string(get(point));
+}*/
+
+std::string NineMensMorris::format(ActionType point, int& cell)
+{
+	if (get(point) == -1) 
+	{
+		return "  ";
+	}
+	else if (get(point) != 0)
+	{
+		SetColor(playerColors[get(point)]);
+	}
+	std::string res = cell / 10 == 0 ? std::to_string(cell) + " " : std::to_string(cell);
+	cell++;
+	return res;
 }
 
 void NineMensMorris::print(std::ostream& out)
 {
+	int cell = 0;
 	for (int i = 0; i < N; i++)
 	{
 		for (int j = 0; j < N; j++)
 		{
-			out << format({ i, j }) << " ";
+			SetColor(ConsoleColor::White);
+			out << format({ i, j }, cell) << " ";
 		}
 		out << std::endl;
 	}
+	SetColor(ConsoleColor::White);
 }
 
 void NineMensMorris::setup(int players_count)
@@ -248,6 +274,10 @@ void NineMensMorris::setup(int players_count)
 	transitions[48] = { 45, 27 };
 	placedCount = 0;
 	millsCount = 0;
+
+	for (int i = 0; i < players_count; i++) {
+		playerColors[i + 1] = (ConsoleColor)(i + 3);
+	}
 	commonState = State::Placing;
 }
 

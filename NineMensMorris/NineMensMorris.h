@@ -3,9 +3,9 @@
 #include <set>
 #include <vector>
 #include <string>
-
+#include <windows.h>
+#include <iomanip>
 #include "GameHandler.h"
-
 
 
 namespace base
@@ -33,6 +33,26 @@ public:
 		NextPlayer
 	};
 
+	enum class ConsoleColor : int
+	{
+		Black = 0,
+		Blue = 1,
+		Green = 2,
+		Cyan = 3,
+		Red = 4,
+		Magenta = 5,
+		Brown = 6,
+		LightGray = 7,
+		DarkGray = 8,
+		LightBlue = 9,
+		LightGreen = 10,
+		LightCyan = 11,
+		LightRed = 12,
+		LightMagenta = 13,
+		Yellow = 14,
+		White = 15
+	} index;
+
 	using Matrix = std::vector<std::vector<int>>;
 	using PlayerId = int;
 
@@ -59,6 +79,7 @@ public:
 
 	static std::map<int, std::set<int>> transitions;
 	static std::map<int, std::vector<Mill>> mills;
+	static std::map<int, ConsoleColor> playerColors;
 	static int players_count;
 
 	bool require_action();
@@ -119,11 +140,13 @@ public:
 	
 	std::vector<NineMensMorris> getMoveBoards(NineMensMorris board, PlayerId player);
 	
-	std::string format(ActionType point);
+	std::string format(ActionType point, int &cell);
 
 	void print(std::ostream& out);
 
 	void setup(int players_count);
+
+	void SetColor(ConsoleColor text, ConsoleColor background = ConsoleColor::Black);
 
 	NineMensMorris() 
 	{
