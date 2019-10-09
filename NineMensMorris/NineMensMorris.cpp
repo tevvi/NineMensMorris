@@ -21,6 +21,7 @@ NineMensMorris::PlayerId NineMensMorris::nextPlayer() {
 	return current_player;
 }
 
+//Поместить фишку текущего игрока на позицию point
 bool NineMensMorris::place(ActionType point){
 	if (!belongs(point, 0)) {
 		return false;
@@ -36,6 +37,7 @@ bool NineMensMorris::place(ActionType point){
 	return true;
 }
 
+//Передвинуть фишку текущего игрока с позиции from на позицию to
 bool NineMensMorris::move(ActionType from, ActionType to){
 	if (!can_make_move(from, to)) {
 		return false;
@@ -47,6 +49,7 @@ bool NineMensMorris::move(ActionType from, ActionType to){
 	return true;
 }
 
+//Убрать фишку противника с позиции point
 bool NineMensMorris::mill(ActionType point){
 	if (belongs(point, current_player) || belongs(point, 0) || belongs(point, -1))
 	{
@@ -83,6 +86,7 @@ void NineMensMorris::calc_mills(ActionType point){
 	}
 }
 
+//Возвращает все игры, которые можно получить из текущей, если игрок заберет у противника одну фишку
 std::vector<NineMensMorris> NineMensMorris::getMillBoards(){
 	std::vector<NineMensMorris> res = {};
 	for (size_t i = 0; i < N; i++)
@@ -102,6 +106,7 @@ std::vector<NineMensMorris> NineMensMorris::getMillBoards(){
 	return res;
 }
 
+//Возвращает все игры, которые можно получить из текущей, если игрок разместит фишку на поле
 std::vector<NineMensMorris> NineMensMorris::getPlaceBoards(){
 	std::vector<NineMensMorris> res = {};
 	for (int i = 0; i < N; i++)
@@ -121,6 +126,7 @@ std::vector<NineMensMorris> NineMensMorris::getPlaceBoards(){
 	return res;
 }
 
+//Возвращает все игры, которые можно получить из текущей, если игрок передвинет фишку
 std::vector<NineMensMorris> NineMensMorris::getMoveBoards(){
 	std::vector<NineMensMorris> res = {};
 	for (int i = 0; i < N; i++)

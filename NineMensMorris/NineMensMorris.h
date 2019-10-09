@@ -17,6 +17,8 @@ namespace base
 	};
 }
 
+
+//Основной класс, реализующий логику игры
 class NineMensMorris
 {
 public:
@@ -25,14 +27,15 @@ public:
 	using Matrix = std::vector<std::vector<int>>;
 	using PlayerId = int;
 	
+	//Состояние игры
 	enum class State
 	{
 		Lose = 0,
-		Win = 1,
+		Win = 1,		//Кем-то из игроков одержана победа
 		Draw = 2,
-		Placing,
-		Moving,
-		Mill,
+		Placing,		//Ожидает от игрока выставления одной фишки
+		Moving,			//Ожитает от игрока перемещения фишк
+		Mill,			//Ожидает, что игрок заберет фишку противника
 		NextPlayer
 	};
 	enum class ConsoleColor : int
@@ -72,17 +75,20 @@ public:
 	int current_player;
 	int millsCount;
 	int placedCount;
-	std::map<PlayerId, int> mens;
-	State state, commonState, prevState;
-	ActionType prev_from, prev_to;
-	Matrix board;
+	std::map<PlayerId, int> mens;	//Словарь, содержащий данные о том, сколько фишек осталось у игрока с заданным id
+	State state, commonState, prevState;	//state, commonState - локальное и глобальное текущие состояния. prevState - состояние, из которого мы пришли в текущее
+	ActionType prev_from, prev_to; //Данные о фишке, использованной в предыдущем ходе. Если prevState = Mill или Place, то в prev_to лежит позиция убранной/добавленной фишки. Если Move, то в prev_from, prev_to лежит, откуда и куда фишка была перемещена
+	Matrix board;	//матрица, содержащая расположение фишек на игровом поле
 	
 	PlayerId nextPlayer();
 
+	//Поместить фишку текущего игрока на позицию point
 	bool place(ActionType point);
 
+	//Передвинуть фишку текущего игрока с позиции from на позицию to
 	bool move(ActionType from, ActionType to);
 
+	//Убрать фишку противника с позиции point
 	bool mill(ActionType point);
 
 	inline void set(ActionType point, PlayerId player)
@@ -108,6 +114,7 @@ public:
 		return get(point) == player;
 	}
 
+	//Закончена ли игра
 	inline bool end()
 	{
 		return state == State::Draw ||
@@ -127,10 +134,13 @@ public:
 	
 	std::string to_s(State s);
 
+	//Возвращает все игры, которые можно получить из текущей, если игрок заберет у противника одну фишку
 	std::vector<NineMensMorris> getMillBoards();
 	
+	//Возвращает все игры, которые можно получить из текущей, если игрок разместит фишку на поле
 	std::vector<NineMensMorris> getPlaceBoards();
 	
+	//Возвращает все игры, которые можно получить из текущей, если игрок передвинет фишку
 	std::vector<NineMensMorris> getMoveBoards();
 	
 	std::string format(ActionType point, int &cell);

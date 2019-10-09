@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "NineMensMorris.h"
 
-
+// ласс, релизующий логику взаимодействи€ игрока-человека с игрой
 class HumanPlayer : public Player<NineMensMorris>
 {
 	std::vector<NineMensMorris::ActionType> move_dec =
@@ -16,6 +16,7 @@ class HumanPlayer : public Player<NineMensMorris>
 	  {5, 1}, {5, 3}, {5, 5},
 	  {6, 0}, {6, 3}, {6, 6} };
 
+	//ѕровер€ет состо€ние игры и забрает у пользовател€ необходимые дл€ хода данные
 	virtual void make_actions(NineMensMorris& game) override
 	{
 		int move1, move2;
