@@ -57,13 +57,13 @@ bool NineMensMorris::mill(ActionType point, PlayerId player)
 		return false;
 	}
 	mens[board[point.first][point.second]]--;
-	set(point, 0);
 	millsCount--;
 	if (millsCount == 0)
 		state = State::NextPlayer;
 	if (mens[get(point)] == 2 && commonState != State::Placing) {
 		state = State::Win;
 	}
+	set(point, 0);
 	return true;
 }
 

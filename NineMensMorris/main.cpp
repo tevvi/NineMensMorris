@@ -18,6 +18,9 @@ void play(Game&  game, std::vector<Player<Game>* > players)
 			std::cout << std::endl << std::endl;
 			if (game.end())
 			{
+				if (game.state == NineMensMorris::State::Win) {
+					std::cout << "Player " << i << " won!\n";
+				}
 				break;
 			}
 		}
@@ -32,4 +35,5 @@ int main()
 	p2.id = 2;
 
 	play(game, {&p1, &p2 });
+	system("PAUSE");
 }
