@@ -29,7 +29,8 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 		{
 		case NineMensMorris::State::Placing:
 			for (auto child : game.getPlaceBoards()) {
-				NineMensMorris n = MiniMax(child, game.nextPlayer(), depth + 1);
+				int nextpl = child.nextPlayer();
+				NineMensMorris n = MiniMax(child, child.current_player, depth + 1);
 					int s = heuristics(n);
 				if (s > score) {
 					score = s;
@@ -40,7 +41,8 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 			break;
 		case NineMensMorris::State::Moving:
 			for (auto child : game.getMoveBoards()) {
-				NineMensMorris n = MiniMax(child, game.nextPlayer(), depth + 1);
+				int nextpl = child.nextPlayer();
+				NineMensMorris n = MiniMax(child, child.current_player, depth + 1);
 				int s = heuristics(n);
 				if (s > score) {
 					score = s;
@@ -52,7 +54,8 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 			break;
 		case NineMensMorris::State::Mill:
 			for (auto child : game.getMillBoards()) {
-				NineMensMorris n = MiniMax(child, game.nextPlayer(), depth + 1);
+				int nextpl = child.nextPlayer();
+				NineMensMorris n = MiniMax(child, child.current_player, depth + 1);
 				int s = heuristics(n);
 				if (s > score) {
 					score = s;
