@@ -79,7 +79,7 @@ void ComputerPlayer::make_actions(NineMensMorris& game)
 	{
 	case NineMensMorris::State::Placing:
 	{
-		int minmax = MiniMax(game, game.current_player, 5);
+		int minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove();
 		game.place(best_move.prev_to);
 		moves.clear();
@@ -87,7 +87,7 @@ void ComputerPlayer::make_actions(NineMensMorris& game)
 	break;
 	case NineMensMorris::State::Mill:
 	{
-		int minmax = MiniMax(game, game.current_player, 5);
+		int minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove();
 		game.mill(best_move.prev_to);
 		moves.clear();
@@ -95,7 +95,7 @@ void ComputerPlayer::make_actions(NineMensMorris& game)
 	break;
 	case NineMensMorris::State::Moving:
 	{
-		int minmax = MiniMax(game, game.current_player, 5);
+		int minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove();
 		game.move(best_move.prev_from, best_move.prev_to);
 		moves.clear();
