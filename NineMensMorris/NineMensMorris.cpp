@@ -307,5 +307,3 @@ std::vector<NineMensMorris::PlayerId> NineMensMorris::setup(int players_count)
 	return players_id;
 }
 
-
-
