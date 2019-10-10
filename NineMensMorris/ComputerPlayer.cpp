@@ -2,28 +2,27 @@
 #include "ComputerPlayer.h"
 
 
-double ComputerPlayer::heuristics(NineMensMorris game) {
+double ComputerPlayer::heuristics(NineMensMorris game, int id) {
 
 	int sum = 0;
-	int mens = game.mens[game.current_player];
+	int mens = game.mens[id];
 	for (auto elem : game.mens) {
 		sum += elem.second;
 	}
 	return (mens * 1.0) / sum;
 }
 
-std::map<NineMensMorris, int, cmpGames> moves;
 
 NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int depth) {
 	NineMensMorris best;
 	int heur;
 	if (game.state == NineMensMorris::State::Draw || game.state == NineMensMorris::State::Win || game.state == NineMensMorris::State::Lose
 		|| depth > NineMensMorris::MAX_DEPTH) {
-		heur = heuristics(game);
+		heur = heuristics(game, player);
 		return game;
 	}
 
-	
+
 	else {
 		int score = INT_MIN;
 		switch (game.state)
@@ -31,11 +30,13 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 		case NineMensMorris::State::Placing:
 			for (auto child : game.getPlaceBoards()) {
 				int nextpl = child.nextPlayer();
-				NineMensMorris n = MiniMax(child, child.current_player, depth + 1);
-					int s = heuristics(n);
-				if (s > score) {
+				NineMensMorris n = MiniMax(child, player, depth + 1);
+				int s = heuristics(n, player);
+				bool comparison;
+				child.current_player == player ? comparison = s > score : comparison = s < score;
+				if (comparison) {
 					score = s;
-					best = n;
+					best = child;
 				}
 			}
 			return best;
@@ -43,11 +44,13 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 		case NineMensMorris::State::Moving:
 			for (auto child : game.getMoveBoards()) {
 				int nextpl = child.nextPlayer();
-				NineMensMorris n = MiniMax(child, child.current_player, depth + 1);
-				int s = heuristics(n);
-				if (s > score) {
+				NineMensMorris n = MiniMax(child, player, depth + 1);
+				int s = heuristics(n, player);
+				bool comparison;
+				child.current_player == player ? comparison = s > score : comparison = s < score;
+				if (comparison) {
 					score = s;
-					best = n;
+					best = child;
 				}
 			}
 
@@ -56,11 +59,13 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 		case NineMensMorris::State::Mill:
 			for (auto child : game.getMillBoards()) {
 				int nextpl = child.nextPlayer();
-				NineMensMorris n = MiniMax(child, child.current_player, depth + 1);
-				int s = heuristics(n);
-				if (s > score) {
+				NineMensMorris n = MiniMax(child, player, depth + 1);
+				int s = heuristics(n, player);
+				bool comparison;
+				child.current_player == player ? comparison = s > score : comparison = s < score;
+				if (comparison) {
 					score = s;
-					best = n;
+					best = child;
 				}
 			}
 			return best;
@@ -87,7 +92,6 @@ void ComputerPlayer::make_actions(NineMensMorris& game)
 		//NineMensMorris minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove(game);
 		game.place(best_move.prev_to);
-		moves.clear();
 	}
 	break;
 	case NineMensMorris::State::Mill:
@@ -95,15 +99,12 @@ void ComputerPlayer::make_actions(NineMensMorris& game)
 		//NineMensMorris minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove(game);
 		game.mill(best_move.prev_to);
-		moves.clear();
 	}
 	break;
 	case NineMensMorris::State::Moving:
 	{
-		//NineMensMorris minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove(game);
 		game.move(best_move.prev_from, best_move.prev_to);
-		moves.clear();
 	}
 	break;
 	default:

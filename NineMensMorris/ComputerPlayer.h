@@ -23,7 +23,7 @@ public:
 
 	NineMensMorris MiniMax(NineMensMorris game, int player, int depth);
 
-	double heuristics(NineMensMorris game);
+	double heuristics(NineMensMorris game, int id);
 
 	NineMensMorris getBestMove(NineMensMorris game);
 
