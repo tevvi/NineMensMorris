@@ -2,13 +2,14 @@
 #include "ComputerPlayer.h"
 
 
-int ComputerPlayer::heuristics(NineMensMorris game) {
+double ComputerPlayer::heuristics(NineMensMorris game) {
 
 	int sum = 0;
+	int mens = game.mens[game.current_player];
 	for (auto elem : game.mens) {
 		sum += elem.second;
 	}
-	return (int)game.mens[game.current_player] / sum;
+	return (mens * 1.0) / sum;
 }
 
 std::map<NineMensMorris, int, cmpGames> moves;
