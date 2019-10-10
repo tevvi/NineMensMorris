@@ -6,7 +6,14 @@
 #include <windows.h>
 #include <iomanip>
 #include "GameHandler.h"
+#include "ComputerPlayer.h"
 
+bool operator<(const NineMensMorris& g1, const NineMensMorris& g2)
+{
+	int h1 = g1.mens[g1.current_player] / g1.placedCount;
+	int h2 = g2.mens[g2.current_player] / g2.placedCount;
+	return h1 < h2;
+}
 
 namespace base
 {
@@ -16,6 +23,9 @@ namespace base
 		NotImplementedException() : std::logic_error{ "Function not yet implemented." } {}
 	};
 }
+
+
+
 
 
 //Основной класс, реализующий логику игры
@@ -66,6 +76,7 @@ public:
 	const static int N = 7;
 	const static int UNAVILABLE = -1;
 	const static int AVILABLE = 0;
+	const static int MAX_DEPTH = 5;
 
 	static std::map<int, std::set<int>> transitions;
 	static std::map<int, std::vector<Mill>> mills;
@@ -151,7 +162,9 @@ public:
 
 	void SetColor(ConsoleColor text, ConsoleColor background = ConsoleColor::Black);
 
+	
 	NineMensMorris() 
 	{
 	}
 };
+

@@ -1,5 +1,6 @@
 #include "HumanPlayer.h"
 #include "NineMensMorris.h"
+#include "ComputerPlayer.h"
 
 using Game = NineMensMorris;
 using GameState = typename Game::State;
@@ -24,8 +25,9 @@ int main()
 {
 	NineMensMorris game;
 	HumanPlayer p1, p2;
+	ComputerPlayer c;
 	std::vector<NineMensMorris::ConsoleColor> colors = {NineMensMorris::ConsoleColor::Yellow, NineMensMorris::ConsoleColor::Blue };
 
-	play(game, {&p1, &p2 }, colors);
+	play(game, {&p1, &c }, colors);
 	
 }

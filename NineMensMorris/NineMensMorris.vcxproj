@@ -115,6 +115,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ComputerPlayer.h" />
     <ClInclude Include="GameHandler.h" />
     <ClInclude Include="HumanPlayer.h" />
     <ClInclude Include="NineMensMorris.h" />

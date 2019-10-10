@@ -1,5 +1,6 @@
 #include "NineMensMorris.h"
 
+
 void NineMensMorris::SetColor(ConsoleColor text, ConsoleColor background)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE),
@@ -20,6 +21,8 @@ NineMensMorris::PlayerId NineMensMorris::nextPlayer() {
 	}
 	return current_player;
 }
+
+
 
 //ѕоместить фишку текущего игрока на позицию point
 bool NineMensMorris::place(ActionType point){
@@ -151,16 +154,6 @@ std::vector<NineMensMorris> NineMensMorris::getMoveBoards(){
 	}
 	return res;
 }
-
-/*std::string NineMensMorris::format(ActionType point)
-{
-	if (belongs(point, -1))
-		return " ";
-	if (belongs(point, 0))
-		return "0";
-	SetColor(playerColors[get(point)]);
-	return std::to_string(get(point));
-}*/
 
 std::string NineMensMorris::to_s(NineMensMorris::State s) {
 	switch(s)
