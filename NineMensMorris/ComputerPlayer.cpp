@@ -15,7 +15,7 @@ double ComputerPlayer::heuristics(NineMensMorris game, int id) {
 
 NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int depth) {
 	NineMensMorris best;
-	int heur;
+	double heur;
 	if (game.state == NineMensMorris::State::Draw || game.state == NineMensMorris::State::Win || game.state == NineMensMorris::State::Lose
 		|| depth > NineMensMorris::MAX_DEPTH) {
 		heur = heuristics(game, player);
@@ -24,20 +24,23 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 
 
 	else {
-		int score = INT_MIN;
+		double score = game.current_player == player ? DBL_MIN : DBL_MAX;
 		switch (game.state)
 		{
 		case NineMensMorris::State::Placing:
 			for (auto child : game.getPlaceBoards()) {
 				int nextpl = child.nextPlayer();
 				NineMensMorris n = MiniMax(child, player, depth + 1);
-				int s = heuristics(n, player);
+				double s = heuristics(n, player);
 				bool comparison;
-				child.current_player == player ? comparison = s > score : comparison = s < score;
+				comparison =  game.current_player == player ?  s > score : s < score;
 				if (comparison) {
 					score = s;
 					best = child;
 				}
+			}
+			if (game.getPlaceBoards().size() == 0) {
+				return game;
 			}
 			return best;
 			break;
@@ -47,7 +50,7 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 				NineMensMorris n = MiniMax(child, player, depth + 1);
 				int s = heuristics(n, player);
 				bool comparison;
-				child.current_player == player ? comparison = s > score : comparison = s < score;
+				comparison = game.current_player == player ? s > score : s < score;
 				if (comparison) {
 					score = s;
 					best = child;
@@ -62,7 +65,7 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 				NineMensMorris n = MiniMax(child, player, depth + 1);
 				int s = heuristics(n, player);
 				bool comparison;
-				child.current_player == player ? comparison = s > score : comparison = s < score;
+				comparison = game.current_player == player ? s > score : s < score;
 				if (comparison) {
 					score = s;
 					best = child;
