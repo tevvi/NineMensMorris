@@ -21,11 +21,11 @@ class ComputerPlayer : public Player<NineMensMorris>
 public:
 	std::map<NineMensMorris, int, cmpGames> moves;
 
-	int MiniMax(NineMensMorris game, int player, int depth);
+	NineMensMorris MiniMax(NineMensMorris game, int player, int depth);
 
 	int heuristics(NineMensMorris game);
 
-	NineMensMorris getBestMove();
+	NineMensMorris getBestMove(NineMensMorris game);
 
 	virtual void make_actions(NineMensMorris& game) override;
 
