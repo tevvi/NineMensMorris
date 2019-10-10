@@ -122,6 +122,7 @@
     <ClInclude Include="Player.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ComputerPlayer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="NineMensMorris.cpp" />
   </ItemGroup>
