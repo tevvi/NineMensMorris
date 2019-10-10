@@ -2,7 +2,12 @@
 
 
 int heuristics(NineMensMorris game) {
-	return (int)game.mens[game.current_player] / game.placedCount;
+
+	int sum;
+	for (auto elem : game.mens) {
+		sum += elem.second;
+	}
+	return (int)game.mens[game.current_player] / sum;
 }
 
 std::map<NineMensMorris, int> moves;
