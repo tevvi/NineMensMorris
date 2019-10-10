@@ -1,16 +1,17 @@
 #include "NineMensMorris.h"
+#include "ComputerPlayer.h"
 
 
 int heuristics(NineMensMorris game) {
 
-	int sum;
+	int sum = 0;
 	for (auto elem : game.mens) {
 		sum += elem.second;
 	}
 	return (int)game.mens[game.current_player] / sum;
 }
 
-std::map<NineMensMorris, int> moves;
+std::map<NineMensMorris, int, cmpGames> moves;
 
 int MiniMax(NineMensMorris game, int player, int depth) {
 	if (game.state == NineMensMorris::State::Draw || game.state == NineMensMorris::State::Win || game.state == NineMensMorris::State::Lose

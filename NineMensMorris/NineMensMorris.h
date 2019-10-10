@@ -6,14 +6,7 @@
 #include <windows.h>
 #include <iomanip>
 #include "GameHandler.h"
-#include "ComputerPlayer.h"
 
-bool operator<(const NineMensMorris& g1, const NineMensMorris& g2)
-{
-	int h1 = g1.mens[g1.current_player] / g1.placedCount;
-	int h2 = g2.mens[g2.current_player] / g2.placedCount;
-	return h1 < h2;
-}
 
 namespace base
 {
