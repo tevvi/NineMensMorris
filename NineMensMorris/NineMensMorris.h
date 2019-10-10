@@ -39,6 +39,7 @@ public:
 		Placing,		//Ожидает от игрока выставления одной фишки
 		Moving,			//Ожитает от игрока перемещения фишк
 		Mill,			//Ожидает, что игрок заберет фишку противника
+		Halt,
 		NextPlayer
 	};
 	enum class ConsoleColor : int
@@ -69,7 +70,7 @@ public:
 	const static int N = 7;
 	const static int UNAVILABLE = -1;
 	const static int AVILABLE = 0;
-	const static int MAX_DEPTH = 4;
+	const static int MAX_DEPTH = 3;
 
 	static std::map<int, std::set<int>> transitions;
 	static std::map<int, std::vector<Mill>> mills;
@@ -80,11 +81,13 @@ public:
 	int millsCount;
 	int placedCount;
 	std::map<PlayerId, int> mens;	//Словарь, содержащий данные о том, сколько фишек осталось у игрока с заданным id
-	State state, commonState, prevState;	//state, commonState - локальное и глобальное текущие состояния. prevState - состояние, из которого мы пришли в текущее
+	State state, commonState, prevState = State::Placing, prevCommonState = State::Placing;	//state, commonState - локальное и глобальное текущие состояния. prevState - состояние, из которого мы пришли в текущее
 	ActionType prev_from, prev_to; //Данные о фишке, использованной в предыдущем ходе. Если prevState = Mill или Place, то в prev_to лежит позиция убранной/добавленной фишки. Если Move, то в prev_from, prev_to лежит, откуда и куда фишка была перемещена
 	Matrix board;	//матрица, содержащая расположение фишек на игровом поле
 	
 	PlayerId nextPlayer();
+
+	double heur;
 
 	//Поместить фишку текущего игрока на позицию point
 	bool place(ActionType point);
@@ -94,6 +97,8 @@ public:
 
 	//Убрать фишку противника с позиции point
 	bool mill(ActionType point);
+
+	bool halt();
 
 	inline void set(ActionType point, PlayerId player)
 	{

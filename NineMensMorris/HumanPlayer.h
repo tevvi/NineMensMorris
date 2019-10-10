@@ -35,6 +35,9 @@ class HumanPlayer : public Player<NineMensMorris>
 			std::cin >> move2;
 			game.move(move_dec[move1], move_dec[move2]);
 			break;
+		case NineMensMorris::State::Halt:
+			game.halt();
+			break;
 		default:
 			break;
 		}

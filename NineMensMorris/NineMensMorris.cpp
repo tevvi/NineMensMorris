@@ -61,11 +61,20 @@ bool NineMensMorris::mill(ActionType point){
 	mens[get(point)]--;
 	millsCount--;
 	if (millsCount == 0)
+	{
 		state = State::NextPlayer;
-	if (mens[get(point)] == 2 && commonState != State::Placing) {
+		commonState = prevCommonState;
+	}
+	if (mens[get(point)] == 2 && (commonState != State::Placing && prevCommonState != State::Placing)) {
 		state = State::Win;
 	}
 	set(point, 0);
+	return true;
+}
+
+bool NineMensMorris::halt() {
+	state = State::NextPlayer;
+	commonState = State::Mill;
 	return true;
 }
 
@@ -85,7 +94,12 @@ void NineMensMorris::calc_mills(ActionType point){
 		}
 	}
 	if (millsCount > 0) {
-		state = State::Mill;
+		prevCommonState = commonState;
+		commonState = State::Halt;
+		state = State::NextPlayer;
+	}
+	else {
+		commonState = prevCommonState;
 	}
 }
 
@@ -172,6 +186,8 @@ std::string NineMensMorris::to_s(NineMensMorris::State s) {
 			return "Mill";
 		case State::NextPlayer :
 			return "Next Player";
+		case State::Halt :
+			return "Waiting";
 	}
 }
 

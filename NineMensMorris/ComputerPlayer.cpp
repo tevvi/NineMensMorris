@@ -18,41 +18,42 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 	double heur;
 	if (game.state == NineMensMorris::State::Draw || game.state == NineMensMorris::State::Win || game.state == NineMensMorris::State::Lose
 		|| depth > NineMensMorris::MAX_DEPTH) {
-		heur = heuristics(game, player);
+		game.heur = heuristics(game, player);
 		return game;
 	}
 
 
 	else {
 		double score = game.current_player == player ? DBL_MIN : DBL_MAX;
+		int nextPlayer = game.current_player == 1 ? 2 : 1;
 		switch (game.state)
 		{
 		case NineMensMorris::State::Placing:
 			for (auto child : game.getPlaceBoards()) {
-				int nextpl = child.nextPlayer();
-				NineMensMorris n = MiniMax(child, player, depth + 1);
-				double s = heuristics(n, player);
+				child.nextPlayer();
+				NineMensMorris n;
+				n = MiniMax(child, player, depth + 1);
+				double s = n.heur;
 				bool comparison;
 				comparison =  game.current_player == player ?  s > score : s < score;
 				if (comparison) {
 					score = s;
+					child.heur = s;
 					best = child;
 				}
-			}
-			if (game.getPlaceBoards().size() == 0) {
-				return game;
 			}
 			return best;
 			break;
 		case NineMensMorris::State::Moving:
 			for (auto child : game.getMoveBoards()) {
-				int nextpl = child.nextPlayer();
+				child.nextPlayer();
 				NineMensMorris n = MiniMax(child, player, depth + 1);
-				int s = heuristics(n, player);
+				int s = n.heur;
 				bool comparison;
 				comparison = game.current_player == player ? s > score : s < score;
 				if (comparison) {
 					score = s;
+					child.heur = s;
 					best = child;
 				}
 			}
@@ -61,19 +62,28 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 			break;
 		case NineMensMorris::State::Mill:
 			for (auto child : game.getMillBoards()) {
-				int nextpl = child.nextPlayer();
+				child.nextPlayer();
 				NineMensMorris n = MiniMax(child, player, depth + 1);
-				int s = heuristics(n, player);
+				int s = n.heur;
 				bool comparison;
 				comparison = game.current_player == player ? s > score : s < score;
 				if (comparison) {
 					score = s;
+					child.heur = s;
 					best = child;
 				}
 			}
 			return best;
 			break;
-
+		case NineMensMorris::State::Halt:
+		{
+			auto child = game;
+			child.nextPlayer();
+			best = MiniMax(child, player, depth + 1);
+			game.heur = best.heur;
+			return best;
+			break;
+		}
 		default:
 			break;
 		}
@@ -95,21 +105,26 @@ void ComputerPlayer::make_actions(NineMensMorris& game)
 		//NineMensMorris minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove(game);
 		game.place(best_move.prev_to);
+		break;
 	}
-	break;
 	case NineMensMorris::State::Mill:
 	{
 		//NineMensMorris minmax = MiniMax(game, game.current_player, 0);
 		NineMensMorris best_move = getBestMove(game);
 		game.mill(best_move.prev_to);
+		break;
 	}
-	break;
 	case NineMensMorris::State::Moving:
 	{
 		NineMensMorris best_move = getBestMove(game);
 		game.move(best_move.prev_from, best_move.prev_to);
+		break;
 	}
-	break;
+	case NineMensMorris::State::Halt:
+	{
+		game.halt();
+		break;
+	}
 	default:
 		break;
 	}
