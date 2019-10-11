@@ -21,7 +21,7 @@ class ComputerPlayer : public Player<NineMensMorris>
 public:
 	std::map<NineMensMorris, int, cmpGames> moves;
 
-	NineMensMorris MiniMax(NineMensMorris game, int player, int depth);
+	NineMensMorris MiniMax(NineMensMorris game, int player, int depth, double alpha, double beta);
 
 	double heuristics(NineMensMorris game, int id);
 
