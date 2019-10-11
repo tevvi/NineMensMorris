@@ -70,7 +70,7 @@ public:
 	const static int N = 7;
 	const static int UNAVILABLE = -1;
 	const static int AVILABLE = 0;
-	const static int MAX_DEPTH = 3;
+	int MAX_DEPTH = 3;
 
 	static std::map<int, std::set<int>> transitions;
 	static std::map<int, std::vector<Mill>> mills;

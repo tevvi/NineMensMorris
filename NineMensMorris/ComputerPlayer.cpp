@@ -17,7 +17,7 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 	NineMensMorris best;
 	double heur;
 	if (game.state == NineMensMorris::State::Draw || game.state == NineMensMorris::State::Win || game.state == NineMensMorris::State::Lose
-		|| depth > NineMensMorris::MAX_DEPTH) {
+		|| depth > game.MAX_DEPTH) {
 		game.heur = heuristics(game, player);
 		return game;
 	}
@@ -40,11 +40,12 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 					score = s;
 					child.heur = s;
 					best = child;
-					alpha = s;
 				}
-				else
-				{
-					beta = s;
+				if (game.current_player == player) {
+					alpha = alpha > s ? alpha : s;
+				}
+				else {
+					beta = beta < s ? beta : s;
 				}
 				if (beta < alpha) {
 					break;
@@ -63,11 +64,12 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 					score = s;
 					child.heur = s;
 					best = child;
-					alpha = s;
 				}
-				else
-				{
-					beta = s;
+				if (game.current_player == player) {
+					alpha = alpha > s ? alpha : s;
+				}
+				else {
+					beta = beta < s ? beta : s;
 				}
 				if (beta < alpha) {
 					break;
@@ -87,11 +89,12 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 					score = s;
 					child.heur = s;
 					best = child;
-					alpha = s;
 				}
-				else
-				{
-					beta = s;
+				if (game.current_player == player) {
+					alpha = alpha > s ? alpha : s;
+				}
+				else {
+					beta = beta < s ? beta : s;
 				}
 				if (beta < alpha) {
 					break;
@@ -127,6 +130,9 @@ void ComputerPlayer::make_actions(NineMensMorris& game)
 	case NineMensMorris::State::Placing:
 	{
 		//NineMensMorris minmax = MiniMax(game, game.current_player, 0);
+		if (game.placedCount == 16 || game.placedCount == 17) {
+			game.MAX_DEPTH = 6;
+		}
 		NineMensMorris best_move = getBestMove(game);
 		game.place(best_move.prev_to);
 		break;
