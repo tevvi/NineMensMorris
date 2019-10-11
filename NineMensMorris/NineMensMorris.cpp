@@ -34,6 +34,7 @@ bool NineMensMorris::place(ActionType point){
 	placedCount++;
 	if (placedCount == players_count * MENS) {
 		commonState = State::Moving;
+		prevCommonState = State::Moving;
 	}
 	state = State::NextPlayer;
 	calc_mills(point);

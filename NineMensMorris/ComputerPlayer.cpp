@@ -48,7 +48,7 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 			for (auto child : game.getMoveBoards()) {
 				child.nextPlayer();
 				NineMensMorris n = MiniMax(child, player, depth + 1);
-				int s = n.heur;
+				double s = n.heur;
 				bool comparison;
 				comparison = game.current_player == player ? s > score : s < score;
 				if (comparison) {
@@ -64,7 +64,7 @@ NineMensMorris ComputerPlayer::MiniMax(NineMensMorris game, int player, int dept
 			for (auto child : game.getMillBoards()) {
 				child.nextPlayer();
 				NineMensMorris n = MiniMax(child, player, depth + 1);
-				int s = n.heur;
+				double s = n.heur;
 				bool comparison;
 				comparison = game.current_player == player ? s > score : s < score;
 				if (comparison) {
